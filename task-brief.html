@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brain Dump — Task Brief</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface-alt: #f1efe8;
+    --border: #e2dfd5;
+    --text-primary: #26211c;
+    --text-secondary: #756f63;
+    --text-muted: #a39d8f;
+    --danger-bg: #fcebeb;
+    --danger-text: #791f1f;
+    --accent: #185fa5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    padding: 20px 16px 60px;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  .sub { font-size: 13px; color: var(--text-secondary); margin: 0 0 20px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  input[type="text"], input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    background: var(--surface);
+    color: var(--text-primary);
+  }
+  input[type="text"]:focus, input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+  label.slider-label { font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+  input[type="range"] { width: 100%; }
+  .checkbox-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;
+  }
+  .checkbox-row input { width: auto; }
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    resize: vertical;
+    min-height: 50px;
+    font-family: inherit;
+    color: var(--text-primary);
+  }
+  button {
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--text-primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  button:active { transform: scale(0.98); }
+  .err { font-size: 13px; color: var(--danger-text); margin-bottom: 8px; display: none; }
+  .top-priority {
+    background: var(--danger-bg);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .top-priority .label {
+    font-size: 11px; font-weight: 600; color: var(--danger-text);
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 0 0 4px;
+  }
+  .top-priority .name { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+  .top-priority .meta { font-size: 12px; color: var(--text-secondary); margin: 0; }
+  .top-priority .notes { font-size: 13px; color: var(--text-primary); margin: 8px 0 0; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08); }
+  .section-label {
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 0 0 8px;
+  }
+  .task-item {
+    background: var(--surface-alt);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .task-item .rank { font-size: 12px; color: var(--text-muted); flex-shrink: 0; width: 18px; padding-top: 1px; }
+  .task-item .name { font-size: 14px; margin: 0; line-height: 1.35; }
+  .task-item .meta { font-size: 11px; color: var(--text-muted); margin: 3px 0 0; }
+  .task-item .notes { font-size: 12px; color: var(--text-secondary); margin: 4px 0 0; }
+  .del-btn {
+    width: auto; padding: 4px; border: none; background: none;
+    color: var(--text-muted); font-size: 16px; flex-shrink: 0; cursor: pointer; line-height: 1;
+  }
+  .empty { font-size: 13px; color: var(--text-muted); text-align: center; padding: 20px 0; }
+  .status { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Brain dump</h1>
+  <p class="sub">Throw it in. It sorts itself.</p>
+
+  <div class="card">
+    <input type="text" id="taskName" placeholder="What's on your mind?" />
+    <div class="row2">
+      <div>
+        <label class="slider-label">Urgency <span id="uOut">5</span></label>
+        <input type="range" id="urgency" min="1" max="10" value="5" step="1" />
+      </div>
+      <div>
+        <label class="slider-label">Importance <span id="iOut">5</span></label>
+        <input type="range" id="importance" min="1" max="10" value="5" step="1" />
+      </div>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="hasDeadline" />
+      Has a hard deadline
+    </label>
+    <input type="date" id="dueDate" style="display:none;" />
+    <textarea id="notes" placeholder="Any context or background info (optional)"></textarea>
+    <div class="err" id="err"></div>
+    <button id="addBtn">+ Brain dump it</button>
+  </div>
+
+  <div id="topOut"></div>
+
+  <p class="section-label">Everything, ranked</p>
+  <div id="listOut"></div>
+
+  <p class="status" id="status">Loading...</p>
+</div>
+
+<script>
+const els = {
+  taskName: document.getElementById('taskName'),
+  urgency: document.getElementById('urgency'),
+  importance: document.getElementById('importance'),
+  uOut: document.getElementById('uOut'),
+  iOut: document.getElementById('iOut'),
+  hasDeadline: document.getElementById('hasDeadline'),
+  dueDate: document.getElementById('dueDate'),
+  notes: document.getElementById('notes'),
+  err: document.getElementById('err'),
+  addBtn: document.getElementById('addBtn'),
+  topOut: document.getElementById('topOut'),
+  listOut: document.getElementById('listOut'),
+  status: document.getElementById('status')
+};
+
+els.urgency.addEventListener('input', () => els.uOut.textContent = els.urgency.value);
+els.importance.addEventListener('input', () => els.iOut.textContent = els.importance.value);
+els.hasDeadline.addEventListener('change', () => {
+  els.dueDate.style.display = els.hasDeadline.checked ? 'block' : 'none';
+});
+
+const STORAGE_KEY = 'tasks';
+let tasks = [];
+const today = new Date();
+today.setHours(0,0,0,0);
+
+function loadTasks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    tasks = raw ? JSON.parse(raw) : [];
+    els.status.textContent = 'Saved on this device.';
+  } catch (e) {
+    tasks = [];
+    els.status.textContent = 'This browser is blocking storage — changes won\'t be saved. Try leaving private/incognito mode.';
+  }
+  render();
+}
+
+function saveTasks() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    els.status.textContent = 'Saved on this device.';
+  } catch (e) {
+    els.status.textContent = 'This browser is blocking storage — changes won\'t be saved. Try leaving private/incognito mode.';
+  }
+}
+
+function effectiveUrgency(t) {
+  if (!t.hasDL || !t.due) return t.baseU;
+  const due = new Date(t.due);
+  const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+  let floor = 1;
+  if (diffDays <= 1) floor = 10;
+  else if (diffDays <= 3) floor = 8;
+  else if (diffDays <= 7) floor = 6;
+  else if (diffDays <= 14) floor = 4;
+  return Math.max(t.baseU, floor);
+}
+
+function score(t) {
+  return effectiveUrgency(t) * 1.6 + t.i;
+}
+
+function dueLabel(t) {
+  if (!t.hasDL || !t.due) return 'No hard deadline';
+  const diffDays = Math.ceil((new Date(t.due) - today) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return 'Overdue';
+  if (diffDays === 0) return 'Due today';
+  if (diffDays === 1) return 'Due tomorrow';
+  return 'Due in ' + diffDays + ' days';
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function removeTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  render();
+  saveTasks();
+}
+
+function render() {
+  const sorted = [...tasks].sort((a, b) => score(b) - score(a));
+
+  if (sorted.length === 0) {
+    els.topOut.innerHTML = '';
+    els.listOut.innerHTML = '<p class="empty">Nothing yet. Brain dump something above.</p>';
+    return;
+  }
+
+  const top = sorted[0];
+  const rest = sorted.slice(1);
+
+  els.topOut.innerHTML =
+    '<div class="top-priority">' +
+      '<p class="label">Top priority</p>' +
+      '<p class="name">' + esc(top.name) + '</p>' +
+      '<p class="meta">' + dueLabel(top) + ' &middot; urgency ' + effectiveUrgency(top) + ', importance ' + top.i + '</p>' +
+      (top.notes ? '<p class="notes">' + esc(top.notes) + '</p>' : '') +
+    '</div>';
+
+  if (rest.length === 0) {
+    els.listOut.innerHTML = '<p class="empty">Nothing else on the list.</p>';
+  } else {
+    els.listOut.innerHTML = rest.map((t, idx) =>
+      '<div class="task-item">' +
+        '<span class="rank">' + (idx + 2) + '</span>' +
+        '<div style="flex:1; min-width:0;">' +
+          '<p class="name">' + esc(t.name) + '</p>' +
+          '<p class="meta">' + dueLabel(t) + ' &middot; urgency ' + effectiveUrgency(t) + ', importance ' + t.i + '</p>' +
+          (t.notes ? '<p class="notes">' + esc(t.notes) + '</p>' : '') +
+        '</div>' +
+        '<button class="del-btn" data-id="' + t.id + '" aria-label="Remove task">&times;</button>' +
+      '</div>'
+    ).join('');
+  }
+
+  document.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => removeTask(btn.getAttribute('data-id')));
+  });
+}
+
+els.addBtn.addEventListener('click', () => {
+  const name = els.taskName.value.trim();
+  if (!name) {
+    els.err.textContent = 'Enter a task first';
+    els.err.style.display = 'block';
+    return;
+  }
+  if (els.hasDeadline.checked && !els.dueDate.value) {
+    els.err.textContent = 'Pick a due date or uncheck the deadline box';
+    els.err.style.display = 'block';
+    return;
+  }
+  els.err.style.display = 'none';
+
+  tasks.push({
+    id: Date.now() + '',
+    name,
+    baseU: parseInt(els.urgency.value, 10),
+    i: parseInt(els.importance.value, 10),
+    hasDL: els.hasDeadline.checked,
+    due: els.hasDeadline.checked ? els.dueDate.value : null,
+    notes: els.notes.value.trim()
+  });
+
+  els.taskName.value = '';
+  els.notes.value = '';
+  els.hasDeadline.checked = false;
+  els.dueDate.style.display = 'none';
+  els.dueDate.value = '';
+  els.urgency.value = 5;
+  els.importance.value = 5;
+  els.uOut.textContent = '5';
+  els.iOut.textContent = '5';
+
+  render();
+  saveTasks();
+  els.taskName.focus();
+});
+
+els.taskName.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') els.addBtn.click();
+});
+
+loadTasks();
+</script>
+</body>
+</html>
